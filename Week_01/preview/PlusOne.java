@@ -19,7 +19,7 @@
 // 
 // Related Topics 数组
 
-package homework;
+package preview;
 
 public class PlusOne {
     public static void main(String[] args) {

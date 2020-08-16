@@ -1,4 +1,4 @@
-package homework;//
+package preview;//
 // 你可以假设每种输入只会对应一个答案。但是，数组中同一个元素不能使用两遍。 
 //
 // 

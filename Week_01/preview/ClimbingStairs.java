@@ -1,4 +1,4 @@
-package homework;
+package preview;
 
 public class ClimbingStairs {
     public static void main(String[] args) {

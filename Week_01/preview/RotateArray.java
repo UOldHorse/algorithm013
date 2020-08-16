@@ -26,7 +26,7 @@
 // 
 // Related Topics 数组
 
-package homework;
+package preview;
 
 public class RotateArray {
     public static void main(String[] args) {

@@ -9,7 +9,7 @@
 // 
 // Related Topics 链表
 
-package homework;
+package preview;
 
 public class MergeTwoSortedLists {
     public static void main(String[] args) {

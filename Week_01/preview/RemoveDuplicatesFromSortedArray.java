@@ -42,7 +42,7 @@
 // 
 // Related Topics 数组 双指针
 
-package homework;
+package preview;
 
 public class RemoveDuplicatesFromSortedArray {
     public static void main(String[] args) {

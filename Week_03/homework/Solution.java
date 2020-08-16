@@ -1,104 +1,186 @@
 package homework;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class Solution {
     public static void main(String[] args) {
         Solution solution = new Solution();
-        //System.out.println(solution.generateParenthesis(3));
-        System.out.println(solution.subsets(new int[]{1,2,3}));
     }
+
     /**
-     * 爬楼梯
-     * @param n
-     * @return
+     * 二叉树的最近公共祖先
      */
-    public int climbStairs(int n) {
-        //爬楼梯 动态规划 只能从下面一格或者下面两格爬到当前位置
-        int[] res = new int[n+1];
-        //初始条件
-        res[0] = 1;
-        res[1] = 2;
-        int i =2;
-        while (i<n){
-            //转移方程
-            res[i] = res[i-1]+res[i-2];
-            i++;
+    class TreeNode {
+        int val;
+        TreeNode left;
+        TreeNode right;
+        TreeNode(int x) {
+            val = x;
         }
-        return res[n-1];
     }
-
-    /**
-     * 括号生成
-     * @param n
-     * @return
-     */
-    public List<String> generateParenthesis(int n) {
-        //左括号随时可以加 左个数》右个数
-        List<String > res = new LinkedList<>();
-        generate(0,0,n,"",res);
-        return res;
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        List<TreeNode> res1 = new LinkedList<>();
+        List<TreeNode> res2 = new LinkedList<>();
+        recur(root, p.val, res1);
+        //System.out.println("-------------");
+        recur(root, q.val, res2);
+        int count = Math.min(res1.size(),res2.size());
+        for(int i =0;i<count;i++){
+            if(res2.get(i).val != res1.get(i).val){
+                return res2.get(i-1);
+            }
+        }
+        return res2.get(count-1);
     }
-
-    private void generate(int left, int right,int max, String s,List<String> res) {
+    public boolean recur (TreeNode root,int val,List<TreeNode> res){
         //terminator
-        if((left+right)==2*max){
-            System.out.println(s);
-            res.add(s);
-            return;
+        if(root == null){
+            return false;
         }
         //process
-        if(left>right){
-            String s1 = s + ")";
-            generate(left,right+1,max,s1,res);
+        res.add(root);
+        //System.out.println("+"+root.val);
+        if(root.val == val){
+            return true;
         }
-        if(left<max){
-            String s2 = s + "(";
-            generate(left+1,right,max,s2,res);
+        //drill down
+        if(recur(root.left, val, res)||recur(root.right, val, res)){
+            return true;
+        }else{
+            res.remove(res.size()-1);
+            //System.out.println("-"+root.val);
+            return false;
         }
-        //reverse states
+
+    }
+    //最优解法
+    public TreeNode lowestCommonAncestorOpt(TreeNode root, TreeNode p, TreeNode q) {
+        if(root == null || root == p || root == q) return root;
+        TreeNode left = lowestCommonAncestor(root.left, p, q);
+        TreeNode right = lowestCommonAncestor(root.right, p, q);
+        if(left == null) return right;
+        if(right == null) return left;
+        return root;
     }
 
     /**
-     * 实现 pow(x, n) ，即计算 x 的 n 次幂函数。
-     * @param x
-     * @param n
+     * 从前序与中序遍历序列构造二叉树
+     * @param preorder
+     * @param inorder
      * @return
      */
-    public double myPow(double x, int n) {
-        //二分乘法
-        if (n == 0) { return 1; }
-        if (n == 1) { return x; }
-        if (n == -1) { return 1 / x; }
-        double half = myPow(x, n / 2);
-        double rest = myPow(x, n % 2);
-        return rest * half * half;
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        //前序遍历的第一个节点是根节点
+        //中序遍历的根节点左右是左右子树
+        return recur(preorder, 0, preorder.length-1, inorder, 0, inorder.length-1);
+    }
+    private TreeNode recur(
+            int[] preorder,int pi,int pj,
+            int[] inorder ,int ii,int ij){
+        if(pi > pj|| ii > ij){
+            return null;
+        }
+        //找到本节点
+        int root = preorder[pi];
+        TreeNode node = new TreeNode(root);
+        //查找左右子树
+        int index = ii;
+        while(inorder[index] != root){
+            index ++;
+        }
+        //计算左右子树长度
+
+        node.left = recur(preorder, pi + 1 , pi + index - ii, inorder, ii, index -1);
+        node.right = recur(preorder, pi + index - ii + 1, pj, inorder, index + 1, ij);
+        return node;
     }
 
     /**
-     * 
+     * 组合
+     */
+    private List<List<Integer>> r;
+    public List<List<Integer>> combine(int n, int k) {
+        r = new LinkedList<>();
+        recur(1, n, 0, k, new LinkedList<Integer>());
+        return r;
+    }
+    private void recur(int i,int n,int j,int k,LinkedList<Integer> res){
+        //terminator
+        if(j == k){
+            r.add(new LinkedList<Integer>(res));
+        }
+        //process
+        for(;i<=n;i++){
+            res.add(i);
+            //drill down
+            recur(i+1, n, j+1, k, res);
+            res.removeLast();
+        }
+    }
+
+    /**
+     * 全排列
      * @param nums
      * @return
      */
-    public List<List<Integer>> subsets(int[] nums) {
-        List<List<Integer>> res = new ArrayList<>();
-        res.add( new ArrayList<Integer>());
-        subMethod(nums,0,res);
-        return res;
+    public List<List<Integer>> permute(int[] nums) {
+        res = new LinkedList<>();
+        boolean[] flag = new boolean[nums.length];
+        recur(0,nums,flag,new LinkedList<Integer>());
+        return  res;
     }
-
-    private void subMethod(int[] nums,int i, List<List<Integer>> res) {
-        if(i == nums.length)
-            return;
-        int count = res.size();
-        for (int m =0;m<count;m++){
-            List<Integer> buff = new LinkedList<Integer>(res.get(m));
-            buff.add(nums[i]);
-            res.add(buff);
+    private List<List<Integer>> res;
+    private void recur(int index,int[] nums, boolean[] flag,LinkedList<Integer> r){
+        //treminator
+        if(index == nums.length){
+            res.add(new LinkedList<>(r));
         }
-        subMethod(nums,i+1,res);
+        //process
+        for (int i = 0;i<nums.length;i++){
+            if(!flag[i]){
+                r.add(nums[i]);
+                flag[i] = true;
+                //drill down
+                recur(index + 1,nums,flag,r);
+                r.removeLast();
+                flag[i] = false;
+            }
+        }
     }
 
+    /**
+     * 全排列II
+     * @param nums
+     * @return
+     */
+    public List<List<Integer>> permuteUnique(int[] nums) {
+        res = new LinkedList<>();
+        //排序
+        Arrays.sort(nums);
+        boolean[] flag = new boolean[nums.length];
+        recur_II(0,nums,flag,new LinkedList<Integer>());
+        return  res;
+    }
+    //private List<List<Integer>> res;
+    private void recur_II(int index,int[] nums, boolean[] flag,LinkedList<Integer> r){
+        //treminator
+        if(index == nums.length){
+            res.add(new LinkedList<>(r));
+        }
+        //process
+        for (int i = 0;i<nums.length;i++){
+            if(!flag[i]){
+                //drill down
+                if(i>=1&&nums[i] == nums[i-1]&&flag[i -1] == true){
+                    break;
+                }else {
+                    flag[i] = true;
+                    r.add(nums[i]);
+                    recur_II(index + 1 ,nums,flag,r);
+                    r.removeLast();
+                    flag[i] = false;
+                }
+            }
+        }
+    }
 }
